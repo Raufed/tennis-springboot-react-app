@@ -35,20 +35,24 @@ class App extends Component {
 
   render() {
     const { dishes } = this.state;
-    const dishList = dishes.map(dish =>
-      <div key={dish.id} className="popup-menu">
-        <div className="info">
-          <div className="dish-name">{dish.name}</div>
-          <div className="dish-price">{dish.price} рублей</div>
-          <div className="actions">
-            <Button size="sm" color="danger" onClick={() => this.remove(dish.id)}>Удалить</Button>
+    const dishList = dishes.map(dish => {
+    let imageUrl = dish.imageId;
+      return (
+        <div key={dish.id} className="popup-menu">
+          <img src={imageUrl} alt="image" border="0" />
+          <div className="info">
+            <div className="dish-name">{dish.name}</div>
+            <div className="dish-price">{dish.price} рублей</div>
+            <div className="actions">
+              <Button size="sm" color="danger" onClick={() => this.remove(dish.id)}>Удалить</Button>
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    });
 
     return (
-      <div className="App">
+      <div className='App'>
         <h1>ТЕННИС БАР</h1>
         <header className="App-header">
           <h2>Меню</h2>
