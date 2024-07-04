@@ -20,10 +20,10 @@ export default class AppNavbar extends Component {
 
             <Navbar color="dark" dark expand="md">
                 <NavbarBrand >
-                    <a href="/" className="nav-link">Home</a>
+                    <a href="/" className="nav-link">Главная</a>
                 </NavbarBrand>
                 <NavbarBrand>
-                    <a href="/dishes" className="nav-link">Dishes</a>
+                    <a href="/dishes" className="nav-link">Меню</a>
                 </NavbarBrand>
             </Navbar>
         )

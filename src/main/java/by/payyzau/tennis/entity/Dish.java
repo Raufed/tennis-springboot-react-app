@@ -13,7 +13,6 @@ public class Dish {
     }
     public Dish() {
     }
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
