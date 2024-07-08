@@ -1,6 +1,7 @@
 package by.payyzau.tennis.service;
 
 import by.payyzau.tennis.entity.Res;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -10,6 +11,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -31,7 +33,6 @@ public class UploadService {
         Path filePath = Paths.get(currentDirectory, "cred.json");
         return filePath.toString();
     }
-
     public Res uploadImageToDrive(File file) {
         Res res = new Res();
         try {
@@ -40,7 +41,7 @@ public class UploadService {
             com.google.api.services.drive.model.File fileMetaData = new com.google.api.services.drive.model.File();
             fileMetaData.setName(file.getName());
             fileMetaData.setParents(Collections.singletonList(folderId));
-            FileContent mediaContent = new FileContent("image/jpeg", file);
+            FileContent mediaContent = new FileContent("image/jpg", file);
             com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
                     .setFields("id").execute();
             String imageUrl = "https://drive.google.com/uc?export=view@id"+uploadedFile.getId();
@@ -58,12 +59,12 @@ public class UploadService {
     }
 
     private Drive cteareDriveService() throws GeneralSecurityException, IOException {
-        GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
+        GoogleCredential credentials = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
                 .createScoped(Collections.singleton(DriveScopes.DRIVE));
         return new Drive.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                JSON_FACTORY,
-                (HttpRequestInitializer) credentials).build();
+                 GoogleNetHttpTransport.newTrustedTransport(),
+                 JSON_FACTORY,
+                 credentials).build();
     }
 
 }
