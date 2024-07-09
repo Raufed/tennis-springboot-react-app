@@ -35,6 +35,7 @@ public class UploadService {
     }
     public Res uploadImageToDrive(File file) {
         Res res = new Res();
+        System.out.println("Uploaded file name = " + file.getName());
         try {
             String folderId = "1pD6oITX2CN0reKG9185gHJ6LFOp3pPRD";
             Drive drive = cteareDriveService();
@@ -44,7 +45,7 @@ public class UploadService {
             FileContent mediaContent = new FileContent("image/jpg", file);
             com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
                     .setFields("id").execute();
-            String imageUrl = "https://drive.google.com/uc?export=view@id"+uploadedFile.getId();
+            String imageUrl = "https://drive.google.com/file/d/"+uploadedFile.getId()+"/view?usp=drive_link";
             System.out.println("IMAGE URL: " + imageUrl);
             file.delete();
             res.setStatus(200);
