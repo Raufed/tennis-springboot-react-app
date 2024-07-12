@@ -9,6 +9,7 @@ public class Dish {
         this.name = name;
         this.price = price;
         this.imageId = imageId;
+        this.imageUrl = imageUrl;
     }
     public Dish() {
     }

@@ -14,6 +14,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,8 +39,13 @@ public class UploadService {
         Res res = new Res();
         System.out.println("Uploaded file name = " + file.getName());
         try {
+
+            BufferedImage sourceImage = ImageIO.read(file);
+            ImageIO.write(sourceImage, "jpg", file);
+
             String folderId = "1pD6oITX2CN0reKG9185gHJ6LFOp3pPRD";
             Drive drive = cteareDriveService();
+
             com.google.api.services.drive.model.File fileMetaData = new com.google.api.services.drive.model.File();
             fileMetaData.setName(file.getName());
             fileMetaData.setParents(Collections.singletonList(folderId));

@@ -3,6 +3,7 @@ package by.payyzau.tennis.controller;
 import by.payyzau.tennis.entity.Dish;
 import by.payyzau.tennis.entity.Res;
 import by.payyzau.tennis.service.DishService;
+import by.payyzau.tennis.service.DowloadService;
 import by.payyzau.tennis.service.UploadService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
 
@@ -29,10 +31,23 @@ public class MenuController {
     private DishService dishService;
     @Autowired
     private UploadService uploadService;
-
+    @Autowired
+    private DowloadService dowloadService;
     private String urlSaver;
     @GetMapping
-    public List<Dish> getAll() {
+    public List<Dish> getAll() throws GeneralSecurityException, IOException {
+        List<Dish> dishes = dishService.allDish();
+        for (Dish dish: dishes) {
+            System.out.println(dish);
+            if(dish.getImageUrl() != null) {
+                String cleanedUrl = dish.getImageUrl().replace("https://drive.google.com/file/d/", "");
+                cleanedUrl = cleanedUrl.replace("/view?usp=drive_link", "");
+                dowloadService.downloadImageFromDrive(cleanedUrl);
+            }
+            else {
+                continue;
+            }
+        }
         return dishService.allDish();
     }
     @GetMapping("/{id}")

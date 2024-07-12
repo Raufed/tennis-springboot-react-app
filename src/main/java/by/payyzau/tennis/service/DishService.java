@@ -8,13 +8,16 @@ import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
 @Service
 public class DishService {
     @Autowired
     private DishRepositoty dishRepositoty;
-
+    @Autowired
+    private DowloadService dowloadService;
     public Dish getDishById(Long id) {
         Dish dish = dishRepositoty.findById(id).orElseThrow(() -> new NotFoundException("Dish not found!"));
         return dish;
@@ -36,5 +39,9 @@ public class DishService {
         currentDish = dishRepositoty.save(currentDish);
 
         return  currentDish;
+    }
+
+    public void showImage(Dish dish) throws GeneralSecurityException, IOException {
+        dowloadService.downloadImageFromDrive(dish.getImageUrl());
     }
 }
