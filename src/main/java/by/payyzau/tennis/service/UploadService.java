@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,5 +75,34 @@ public class UploadService {
                  JSON_FACTORY,
                  credentials).build();
     }
+
+    public String deleteFile(String fileId) throws GeneralSecurityException, IOException {
+        try {
+            GoogleCredential credentials = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
+                    .createScoped(Collections.singleton(DriveScopes.DRIVE));
+            Drive drive = new Drive.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    JSON_FACTORY,
+                    credentials).build();
+            drive.files().delete(extractFileIdFromUrl(fileId)).execute();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
+
+        return "File with id = " + fileId + " was deleted!";
+    }
+    private String extractFileIdFromUrl(String url) {
+        String fileId = "";
+        String[] parts = url.split("/d/");
+
+        if (parts.length > 1) {
+            String[] fileIdParts = parts[1].split("/");
+            fileId = fileIdParts[0];
+        }
+
+        return fileId;
+    }
+
 
 }

@@ -37,11 +37,12 @@ class DishList extends Component {
 
   render() {
     const { dishes } = this.state;
+    //const logo = require('./logo.svg')
     const dishList = dishes.map(dish => {
-    let imageUrl = dish.imageId;
       return (
         <div key={dish.id} className="popup-menu">
-          <img src={imageUrl} alt="image" border="0" />
+          <img src={process.env.PUBLIC_URL + '/images/'+ dish.imageId} alt="Image" border="0" />
+          
           <div className="info">
             <div className="dish-name">{dish.name}</div>
             <div className="dish-price">{dish.price} рублей</div>

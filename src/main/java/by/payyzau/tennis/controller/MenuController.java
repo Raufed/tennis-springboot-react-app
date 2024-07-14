@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("api/v1/menu")
 public class MenuController {
+    String ANSI_RESET = "\u001B[0m";
+    String ANSI_RED = "\u001B[31m";
+    String ANSI_GREEN = "\u001B[32m";
     @Autowired
     private DishService dishService;
     @Autowired
@@ -42,7 +47,7 @@ public class MenuController {
             if(dish.getImageUrl() != null) {
                 String cleanedUrl = dish.getImageUrl().replace("https://drive.google.com/file/d/", "");
                 cleanedUrl = cleanedUrl.replace("/view?usp=drive_link", "");
-                dowloadService.downloadImageFromDrive(cleanedUrl);
+                dish.setImageId(dowloadService.downloadImageFromDrive(cleanedUrl));
             }
             else {
                 continue;
@@ -70,7 +75,8 @@ public class MenuController {
             file.transferTo(tempFile);
             Res res = uploadService.uploadImageToDrive(tempFile);
             dish1.setImageUrl(res.getUrl());
-            System.out.println(res.getUrl());
+            //System.out.println(res.getUrl());
+            dish1.setImageId(tempFile.getPath());
             Dish savedDish = dishService.saveDish(dish1);
             System.out.println(savedDish.toString());
             return ResponseEntity.created(new URI("api/v1/menu/" + savedDish.getId())).body(savedDish);
@@ -102,9 +108,30 @@ public class MenuController {
         return ResponseEntity.ok().location(location).body(updatedDish);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDish(@PathVariable("id") Long id) throws URISyntaxException {
-         dishService.deleteDish(id);
-         URI location = new URI("api/v1/menu/" + id);
-         return ResponseEntity.ok().location(location).body("Dish with id = " + id + " was deleted!");
+    public ResponseEntity<?> deleteDish(@PathVariable("id") Long id) throws URISyntaxException, GeneralSecurityException, IOException {
+
+        Dish dishById = dishService.getDishById(id);
+        String currentDirectory = System.getProperty("user.dir");
+
+        //System.out.println(ANSI_RED + dishById.getImageId() + ANSI_RESET);
+        //System.out.println(ANSI_RED + dishById + ANSI_RESET);
+
+        File file = new File(dishById.getImageId());
+        //System.out.println(ANSI_GREEN + "Имя файла: " + file.getName() + ANSI_RESET);
+
+        //Getting file path
+        String filePathString = currentDirectory + "\\frontend\\public\\images\\" + file.getName();
+        //System.out.println(ANSI_GREEN + filePathString + ANSI_RESET);
+
+        // Deleting file
+        FileUtils.touch(new File(filePathString));
+        File fileToDelete = FileUtils.getFile(filePathString);
+        boolean success = FileUtils.deleteQuietly(fileToDelete);
+        //System.out.println(success);
+
+        uploadService.deleteFile(dishById.getImageUrl());
+        dishService.deleteDish(id);
+        URI location = new URI("api/v1/menu/" + id);
+        return ResponseEntity.ok().location(location).body("Dish with id = " + id + " was deleted!");
     }
 }
