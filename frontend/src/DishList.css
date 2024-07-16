@@ -1,83 +1,93 @@
 .DishList {
-    text-align: center;
-  }
-  
-  @media (prefers-reduced-motion: no-preference) {
-    .DishList-logo {
-      animation: App-logo-spin infinite 20s linear;
-    }
-  }
-  
-  .DishList-header {
-    background-color: #282c34;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
-  }
-  
-  .App-link {
-    color: #61dafb;
-  }
-  
-  @keyframes App-logo-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }
-  .DishList-intro {
-    align-items: flex-end;
-    display: flex;
-  }
-  .popup-menu {
-    width: 300px;
-    height: 400px;
-    background-color: lightgreen;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    margin-top: auto;
-    border: 5px solid white;
-  }
-  
-  .info {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 30%;
-  }
-  
-  .dish-name {
-    width: 90%;
-    height: 30px;
-    border-radius: 15px;
-    background-color: rgb(255, 255, 255);
-    text-align: center;
-    margin-bottom: 10px;
-  }
-  
-  .dish-price {
-    width: 90%;
-    height: 25px;
-    background-color: rgb(255, 255, 255);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 15px;
-    text-align: center;
-  }
-  
-  .actions {
-    margin-top: 10px;
-  }
-  img {
-    width: 85%;
-  }
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.DishList-intro {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.popup-menu {
+  border: 1px solid #dcdcdc;
+  padding: 10px;
+  margin: 10px;
+  width: 290px;
+  text-align: center;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.popup-menu:hover {
+  transform: scale(1.05);
+}
+
+.info {
+  margin-top: 10px;
+}
+
+.dish-name {
+  font-weight: bold;
+  font-size: 18px;
+  color: #333;
+}
+
+.dish-price {
+  color: #27ae60;
+  font-size: 16px;
+}
+
+.actions {
+  margin-top: 10px;
+}
+
+button {
+  border: none;
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+button.delete {
+  background-color: #e74c3c;
+  color: white;
+}
+
+button.add {
+  background-color: #3498db;
+  color: white;
+}
+
+.add-dish {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #ccc;
+  padding: 20px;
+  width: 200px;
+  background-color: #eaf2f8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-dish:hover {
+  background-color: #d6eaf8;
+}
+
+.DishList-intro img {
+  margin: auto;
+  border-radius: 8px;
+  max-width: 100%;
+}

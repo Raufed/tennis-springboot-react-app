@@ -1,15 +1,14 @@
+import React, { Component } from 'react';
 import { Button } from 'reactstrap';
 import './DishList.css';
-import React, { Component } from 'react';
-import AppNavbar from './AppNavbar';
 import CreateDishModal from './CreateDishModal';
 
 class DishList extends Component {
   constructor(props) {
     super(props);
+    this.state = { dishes: [], showModal: false };
   }
 
-  state = { dishes: [] };
   async componentDidMount() {
     try {
       const response = await fetch("http://localhost:8080/api/v1/menu");
@@ -21,47 +20,47 @@ class DishList extends Component {
   }
 
   async remove(id) {
-    await fetch(`http://localhost:8080/api/v1/menu/${id}`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
-        }
+    await fetch(`http://localhost:8080/api/v1/menu/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
       }
-    ).then(() => {
+    }).then(() => {
       let updatedDish = [...this.state.dishes].filter(i => i.id !== id);
-      this.setState({ dishes: updatedDish })
+      this.setState({ dishes: updatedDish });
     });
   }
 
   render() {
-    const { dishes } = this.state;
-    //const logo = require('./logo.svg')
-    const dishList = dishes.map(dish => {
-      return (
-        <div key={dish.id} className="popup-menu">
-          <img src={process.env.PUBLIC_URL + '/images/'+ dish.imageId} alt="Image" border="0" />
-          
-          <div className="info">
-            <div className="dish-name">{dish.name}</div>
-            <div className="dish-price">{dish.price} рублей</div>
-            <div className="actions">
-              <Button size="sm" color="danger" onClick={() => this.remove(dish.id)}>Удалить</Button>
-            </div>
+    const { dishes, showModal } = this.state;
+
+    const dishList = dishes.map(dish => (
+      <div key={dish.id} className="popup-menu">
+        <img src={process.env.PUBLIC_URL + '/images/' + dish.imageId} alt="Image" border="0" />
+        <div className="info">
+          <div className="dish-name">{dish.name}</div>
+          <div className="dish-price">{dish.price} рублей</div>
+          <div className="actions">
+            <Button size="sm" color="danger" onClick={() => this.remove(dish.id)}>Удалить</Button>
           </div>
         </div>
-      );
-    });
+      </div>
+    ));
 
     return (
       <div className='DishList'>
-        <CreateDishModal/> 
         <div className="DishList-intro">
-          {
-            dishList
-          }
+          {dishList}
+          <div className="popup-menu add-dish">
+            <div className="info">
+              <Button color="primary" onClick={() => this.setState({ showModal: true })}>
+                Добавить блюдо
+              </Button>
+            </div>
+          </div>
         </div>
+        {showModal && <CreateDishModal onClose={() => this.setState({ showModal: false })} />}
       </div>
     );
   }

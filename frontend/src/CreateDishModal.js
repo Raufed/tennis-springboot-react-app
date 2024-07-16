@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label, Form } from 'reactstrap';
+import { Button, Modal, ModalBody, ModalFooter, Input, Label, Form } from 'reactstrap';
 import { v4 as uuidv4 } from 'uuid';
+import './CreateDishModal.css'; // Import the CSS file
 
 class CreateDishModal extends Component {
   emptyItem = {
@@ -14,29 +15,22 @@ class CreateDishModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isOpen: false,
       item: this.emptyItem,
       selectedFile: null,
-      selectedFileName: ''
+      selectedFileName: '',
+      selectedFileUrl: '' // Add state to store the selected file URL
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleCreateDish = this.handleCreateDish.bind(this);
   }
 
-  toggleModal = () => {
-    this.setState(prevState => ({
-      isOpen: !prevState.isOpen
-    }));
-  };
-
   handleFileChange = event => {
-    const imageId = uuidv4();
     const file = event.target.files[0];
     const selectedFileName = file ? file.name : '';
-    const selectedFileId = file ? file.imageId : '';
-    this.setState({ selectedFile: file, selectedFileName, selectedFileId });
-    this.handleChange(event); // Вызов функции handleChange
+    const selectedFileUrl = file ? URL.createObjectURL(file) : '';
+    this.setState({ selectedFile: file, selectedFileName, selectedFileUrl });
+    this.handleChange(event); // Call handleChange
   };
 
   async handleCreateDish(event) {
@@ -58,19 +52,14 @@ class CreateDishModal extends Component {
 
       const response = await fetch("http://localhost:8080/api/v1/menu", {
         method: 'POST',
-        //headers: {'Accept': 'application/json','Content-Type': 'application/json'},
-        //body: JSON.stringify(item)
         body: formData 
       });
 
-      
-      //const responseFile = await fetch("http://localhost:8080/api/v1/menu/uploadDishImage", {method: 'POST', body: formData});
-      
       const data = await response.json();
       console.log(data);
 
       this.props.history.push(item);
-      this.toggleModal();
+      this.props.onClose();
       window.location.reload();
     } catch (error) {
       console.error("Ошибка при получении данных: ", error);
@@ -90,32 +79,30 @@ class CreateDishModal extends Component {
   }
 
   render() {
-    const { item, selectedFileName } = this.state;
+    const { item, selectedFileName, selectedFileUrl } = this.state;
+    const { onClose } = this.props;
     return (
-      <div>
-        <Button color="primary" onClick={this.toggleModal}>Добавить блюдо</Button>
-        <Modal isOpen={this.state.isOpen} toggle={this.toggleModal}>
-          <ModalHeader toggle={this.toggleModal}>Создание блюда</ModalHeader>
-          <ModalBody>
-            <Form>
-              <Label>Выберите изображение</Label>
-              <Input type="file"  accept="image/*" onChange={this.handleFileChange} />
-
-              <br />
-              <Label>{item.imageId}</Label>
-              <br />
-              <Label>Название</Label>
-              <Input type="text" name="name" value={item.name} onChange={this.handleChange} />
-              <Label>Цена</Label>
-              <Input type="number" name="price" value={item.price} onChange={this.handleChange} />
-            </Form>
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={this.handleCreateDish}>Создать</Button>{' '}
-            <Button color="secondary" onClick={this.toggleModal}>Отмена</Button>
-          </ModalFooter>
-        </Modal>
-      </div>
+      <Modal isOpen={true} toggle={onClose} className="Modal">
+        <ModalBody className="ModalBody">
+          <Form>
+            <Label>Выберите изображение</Label>
+            <label htmlFor="file-upload" className="button-like" > Выберите файл
+              <Input id="file-upload" type="file" accept="image/*" onChange={this.handleFileChange} /> 
+            </label>
+            {selectedFileName && <p className="selected-file">Выбранный файл: {selectedFileName}</p>}
+            {selectedFileUrl && <img src={selectedFileUrl} alt="Preview" className="image-preview" />}
+            <br />
+            <Label>Название</Label>
+            <Input type="text" name="name" value={item.name} onChange={this.handleChange} />
+            <Label>Цена</Label>
+            <Input type="number" name="price" value={item.price} onChange={this.handleChange} />
+          </Form>
+        </ModalBody>
+        <ModalFooter className="ModalFooter">
+          <Button color="primary" className="primary" onClick={this.handleCreateDish}>Создать</Button>{' '}
+          <Button color="secondary" className="secondary" onClick={onClose}>Отмена</Button>
+        </ModalFooter>
+      </Modal>
     );
   }
 }
