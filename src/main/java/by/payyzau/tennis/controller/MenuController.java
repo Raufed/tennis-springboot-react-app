@@ -9,6 +9,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,7 @@ import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -62,43 +65,58 @@ public class MenuController {
         return ResponseEntity.ok().location(location).body(dishById);
     }
     @PostMapping
-    public ResponseEntity<Dish> addDish( @RequestParam("dish") String dish, @RequestParam("image") MultipartFile file) throws URISyntaxException, JsonProcessingException {
+    public ResponseEntity<?> addDish(@Valid @RequestBody Dish dish1) throws URISyntaxException, JsonProcessingException {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            JsonNode jsonNode = mapper.readTree(dish);
-            Dish dish1 = mapper.treeToValue(jsonNode, Dish.class);
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().body(null);
-            }
-            File tempFile = File.createTempFile("temp", file.getOriginalFilename());
-            file.transferTo(tempFile);
-            Res res = uploadService.uploadImageToDrive(tempFile);
-            dish1.setImageUrl(res.getUrl());
-            //System.out.println(res.getUrl());
-            dish1.setImageId(tempFile.getPath());
+            System.out.println("---HERE---");
             Dish savedDish = dishService.saveDish(dish1);
             System.out.println(savedDish.toString());
             return ResponseEntity.created(new URI("api/v1/menu/" + savedDish.getId())).body(savedDish);
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
-        return ResponseEntity.badRequest().body(null);
+        //return ResponseEntity.badRequest().body(null);
     }
-    @PostMapping("/uploadDishImage")
-    public ResponseEntity<String> addImageDish(@RequestParam("image") MultipartFile file) throws IOException {
+    @PostMapping("/image")
+    public ResponseEntity<String> addImageDish(
+            @Valid
+            @RequestParam("image")
+                MultipartFile file,
+            @RequestParam("imageId")
+                String imageId) throws IOException {
         try {
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().body("File is empty");
-            }
+            if (file.isEmpty()) return ResponseEntity.badRequest().body("File is empty");
 
+
+            String clearImageId = imageId.replace("\"", "");
             File tempFile = File.createTempFile("temp", file.getOriginalFilename());
             file.transferTo(tempFile);
+
+
+            System.out.println(clearImageId);
+            Dish currentDish = new Dish();
+            currentDish = dishService.getByImageId(clearImageId);
+
+            //if(currentDish == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Нет данных блюда");
+
             Res res = uploadService.uploadImageToDrive(tempFile);
+            currentDish.setImageUrl(res.getUrl());
+
+            System.out.println("IMAGE_ID = " + clearImageId.toString());
+            String cleanedUrl = res.getUrl().replace("https://drive.google.com/file/d/", "");
+            cleanedUrl = cleanedUrl.replace("/view?usp=drive_link", "");
+
+            String fileName = dowloadService.downloadImageFromDrive(cleanedUrl);
+            System.out.println(ANSI_GREEN + "fileName = " + fileName + ANSI_RESET);
+            currentDish.setImageId(fileName);
+            dishService.saveDish(currentDish);
+
             return ResponseEntity.ok().body(res.toString());
         } catch (IOException e) {
             // Обработка исключения IOException
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing the file");
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
         }
     }
     @PutMapping("/{id}")
@@ -112,22 +130,14 @@ public class MenuController {
 
         Dish dishById = dishService.getDishById(id);
         String currentDirectory = System.getProperty("user.dir");
-
-        //System.out.println(ANSI_RED + dishById.getImageId() + ANSI_RESET);
-        //System.out.println(ANSI_RED + dishById + ANSI_RESET);
-
-        File file = new File(dishById.getImageId());
-        //System.out.println(ANSI_GREEN + "Имя файла: " + file.getName() + ANSI_RESET);
-
-        //Getting file path
-        String filePathString = currentDirectory + "\\frontend\\public\\images\\" + file.getName();
-        //System.out.println(ANSI_GREEN + filePathString + ANSI_RESET);
+        String filePathString = currentDirectory + "/frontend/public/images/" + dishById.getImageId();
+        System.out.println(filePathString);
 
         // Deleting file
         FileUtils.touch(new File(filePathString));
         File fileToDelete = FileUtils.getFile(filePathString);
         boolean success = FileUtils.deleteQuietly(fileToDelete);
-        //System.out.println(success);
+        System.out.println(success);
 
         uploadService.deleteFile(dishById.getImageUrl());
         dishService.deleteDish(id);

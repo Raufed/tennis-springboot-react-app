@@ -1,11 +1,19 @@
 package by.payyzau.tennis.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 
 @Entity
 public class Dish {
-    public Dish(String name, double price, Long id, String imageId, String imageUrl) {
+    public Dish(Long id, String name, double price, String imageId, String imageUrl) {
         this.id = id;
+        this.name = name;
+        this.price = price;
+        this.imageId = imageId;
+        this.imageUrl = imageUrl;
+    }
+    public Dish(String name, double price, String imageId, String imageUrl) {
         this.name = name;
         this.price = price;
         this.imageId = imageId;
@@ -17,10 +25,15 @@ public class Dish {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column(name = "name")
+    @NotBlank(message = "Вы не задали название")
+    @NotNull(message = "Вы не задали название")
     private String name;
     @Column(name = "price")
+    @NotNull(message = "Цена не задана")
+    @Positive(message = "Задайте цену")
     private double price;
     @Column(name = "imageUrl")
+    @NotNull(message = "Вы не загрузи картинку блюда")
     private String imageUrl;
     @Column(name = "imageId")
     private String imageId;
