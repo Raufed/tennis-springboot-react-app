@@ -68,6 +68,7 @@ public class MenuController {
     public ResponseEntity<?> addDish(@Valid @RequestBody Dish dish1) throws URISyntaxException, JsonProcessingException {
         try {
             System.out.println("---HERE---");
+
             Dish savedDish = dishService.saveDish(dish1);
             System.out.println(savedDish.toString());
             return ResponseEntity.created(new URI("api/v1/menu/" + savedDish.getId())).body(savedDish);
