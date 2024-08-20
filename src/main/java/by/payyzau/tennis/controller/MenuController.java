@@ -97,7 +97,6 @@ public class MenuController {
             System.out.println(clearImageId);
             Dish currentDish = new Dish();
             currentDish = dishService.getByImageId(clearImageId);
-
             //if(currentDish == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Нет данных блюда");
 
             Res res = uploadService.uploadImageToDrive(tempFile);
