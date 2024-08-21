@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: tennis
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+      show-sql: true
+      generate-ddl: true
+      properties:
+        hibernate.format_sql: true
+        hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+application:
+  security:
+    jwt:
+      expiration: 86400000 # a day
+      refresh-token:
+        expiration: 604800000 # 7 days

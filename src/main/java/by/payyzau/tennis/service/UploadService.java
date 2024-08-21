@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -68,22 +65,26 @@ public class UploadService {
     }
 
     private Drive cteareDriveService() throws GeneralSecurityException, IOException {
-        GoogleCredential credentials = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
+        InputStream in = new ByteArrayInputStream(System.getenv("GOOGLE_CRED").getBytes());
+        //GoogleCredential credentials = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
+        GoogleCredential credentials2 = GoogleCredential.fromStream(in)
                 .createScoped(Collections.singleton(DriveScopes.DRIVE));
         return new Drive.Builder(
                  GoogleNetHttpTransport.newTrustedTransport(),
                  JSON_FACTORY,
-                 credentials).build();
+                 credentials2).build();
     }
 
     public String deleteFile(String fileId) throws GeneralSecurityException, IOException {
         try {
-            GoogleCredential credentials = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
+            InputStream in = new ByteArrayInputStream(System.getenv("GOOGLE_CRED").getBytes());
+            //GoogleCredential credentials = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
+            GoogleCredential credentials2 = GoogleCredential.fromStream(in)
                     .createScoped(Collections.singleton(DriveScopes.DRIVE));
             Drive drive = new Drive.Builder(
                     GoogleNetHttpTransport.newTrustedTransport(),
                     JSON_FACTORY,
-                    credentials).build();
+                    credentials2).build();
             drive.files().delete(extractFileIdFromUrl(fileId)).execute();
         } catch (Exception e) {
             System.out.println(e.getMessage());

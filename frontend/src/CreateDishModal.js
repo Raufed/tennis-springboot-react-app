@@ -52,6 +52,7 @@ class CreateDishModal extends Component {
 
     try {
       // Upload image
+      const token = localStorage.getItem('token');
       const formData = new FormData();
       formData.append('image', selectedFile);
       formData.append('imageId', imageId);
@@ -60,7 +61,8 @@ class CreateDishModal extends Component {
       const responseDish = await fetch('http://localhost:8080/api/v1/menu', {
         method: 'POST',
         headers: {
-          Accept: 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(newItem)
@@ -76,6 +78,9 @@ class CreateDishModal extends Component {
       //if()
       const responseImage = await fetch('http://localhost:8080/api/v1/menu/image', {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
         body: formData
       });
 

@@ -10,10 +10,7 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import org.springframework.stereotype.Service;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,12 +32,14 @@ public class DowloadService {
         return filePath.toString();
     }
     private Drive cteareDriveService() throws GeneralSecurityException, IOException {
-        GoogleCredential credentials = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
+        InputStream in = new ByteArrayInputStream(System.getenv("GOOGLE_CRED").getBytes());
+        //GoogleCredential credentials = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
+        GoogleCredential credentials2 = GoogleCredential.fromStream(in)
                 .createScoped(Collections.singleton(DriveScopes.DRIVE));
         return new Drive.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 JSON_FACTORY,
-                credentials).build();
+                credentials2).build();
     }
 
     public String downloadImageFromDrive(String fileId) throws GeneralSecurityException, IOException {
